@@ -1,0 +1,21 @@
+----------------------------------------------------------------------------------------------------------------------------------
+NCDrill File Report For: pi_clock.PcbDoc   24.09.2024  19:18:16
+----------------------------------------------------------------------------------------------------------------------------------
+
+Layer Pair : Top Layer to Bottom Layer
+ASCII RoundHoles File : pi_clock_x_A_x_NC Drill.TXT
+
+Tool       Hole Size               Hole Tolerance               Hole Type       Hole Count   Plated         Tool Travel
+----------------------------------------------------------------------------------------------------------------------------------
+T1      0.3mm (12mil)                                             Round             583       PTH        1706.98mm (67.20inch)
+T2      0.7mm (28mil)                                             Round             60        PTH        188.48mm (7.42inch)
+T3      1mm (39mil)                                               Round             40        PTH        134.62mm (5.30inch)
+T4      1.549mm (61mil)                                           Round             8         PTH        64.11mm (2.52inch)
+T5      1.753mm (69mil)                                           Round             8         PTH        65.16mm (2.57inch)
+T6      1.1mm (43mil)                                             Round             3         NPTH       9.72mm (0.38inch)
+T7      2.3mm (91mil)                                             Round             4         NPTH       16.51mm (0.65inch)
+T8      4.089mm (161mil)                                          Round             4         NPTH       55.00mm (2.17inch)
+----------------------------------------------------------------------------------------------------------------------------------
+Totals                                                                              710
+
+Total Processing Time (hh:mm:ss) : 00:00:00

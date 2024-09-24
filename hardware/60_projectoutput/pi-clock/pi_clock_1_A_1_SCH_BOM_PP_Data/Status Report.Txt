@@ -1,0 +1,11 @@
+Output: Pick and place
+Type  : Pick Place
+From  : Variant [1] of PCB Document [pi_clock.PcbDoc]
+   Generated File[pi_clock_1_A_1_Pick Place.txt]
+   Generated File[pi_clock_1_A_1_Pick Place.csv]
+
+
+Files Generated   : 2
+Documents Printed : 0
+
+Finished Output Generation At 19:18:44 On 24.09.2024

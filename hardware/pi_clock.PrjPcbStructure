@@ -1,0 +1,4 @@
+Record=TopLevelDocument|FileName=01 - Overview.SchDoc|SheetNumber=1
+Record=SheetSymbol|SourceDocument=01 - Overview.SchDoc|Designator=Connector|SchDesignator=Connector|FileName=05 - Connector.SchDoc|SheetNumber=4|SymbolType=Normal|RawFileName=05 - Connector.SchDoc|DesignItemId= |SourceLibraryName= |ObjectKind=Sheet Symbol|RevisionGUID= |ItemGUID= |VaultGUID= 
+Record=SheetSymbol|SourceDocument=01 - Overview.SchDoc|Designator=Display|SchDesignator=Display|FileName=04 - Display.SchDoc|SheetNumber=3|SymbolType=Normal|RawFileName=04 - Display.SchDoc|DesignItemId= |SourceLibraryName= |ObjectKind=Sheet Symbol|RevisionGUID= |ItemGUID= |VaultGUID= 
+Record=SheetSymbol|SourceDocument=01 - Overview.SchDoc|Designator=MCU|SchDesignator=MCU|FileName=03 - MCU.SchDoc|SheetNumber=2|SymbolType=Normal|RawFileName=03 - MCU.SchDoc|DesignItemId= |SourceLibraryName= |ObjectKind=Sheet Symbol|RevisionGUID= |ItemGUID= |VaultGUID= 

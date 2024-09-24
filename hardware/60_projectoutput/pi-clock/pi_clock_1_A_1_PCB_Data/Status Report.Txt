@@ -1,0 +1,12 @@
+Output: NC Drill Files
+Type  : NC Drill
+From  : PCB Document [pi_clock.PcbDoc]
+   Generated File[pi_clock_x_A_x_NC Drill.TXT]
+   Generated File[pi_clock_x_A_x_NC Drill.LDP]
+   Generated File[pi_clock_x_A_x_NC Drill.DRR]
+
+
+Files Generated   : 3
+Documents Printed : 0
+
+Finished Output Generation At 19:18:16 On 24.09.2024
