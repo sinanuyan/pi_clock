@@ -1,4 +1,5 @@
 "./Core/Src/7_segment.o"
+"./Core/Src/button_thread.o"
 "./Core/Src/clock_thread.o"
 "./Core/Src/freertos.o"
 "./Core/Src/main.o"

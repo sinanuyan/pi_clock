@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "clock_thread.h"
+#include "button_thread.h"
 
 /* USER CODE END Includes */
 
@@ -52,6 +53,8 @@ TIM_HandleTypeDef htim2;
 osThreadId defaultTaskHandle;
 /* USER CODE BEGIN PV */
 xTaskHandle clock_thread_handle;
+xTaskHandle button_thread_handle;
+QueueHandle_t button_queue;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -125,6 +128,10 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
+  button_queue = xQueueCreate(16, sizeof(uint8_t));
+  if(button_queue == NULL){
+	  while(1);
+  }
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
@@ -132,10 +139,9 @@ int main(void)
   osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
-
   /* USER CODE BEGIN RTOS_THREADS */
   xTaskCreate(clock_thread, "clock_thread", configMINIMAL_STACK_SIZE, NULL, 1, &clock_thread_handle);
-  //xTaskCreate(backlight_thread, "back_light", configMINIMAL_STACK_SIZE, NULL, 1, &backlight_thread_handle);
+  xTaskCreate(button_thread, "button_thread", configMINIMAL_STACK_SIZE, NULL, 2, &button_thread_handle);
 
   vTaskStartScheduler();
   /* USER CODE END RTOS_THREADS */

@@ -9,15 +9,17 @@
 #include "main.h"
 
 extern RTC_HandleTypeDef hrtc;
+extern TIM_HandleTypeDef htim2;
+extern uint8_t segment_data[34][8];
 
 void clock_thread(void *pvParameters) {
 	/* Just to remove compiler warning. */
 	(void) pvParameters;
 
-	const TickType_t delay_100_ms = pdMS_TO_TICKS(100UL);
+	const TickType_t delay_10_ms = pdMS_TO_TICKS(10UL);
 
 	uint8_t data[6] = {
-			0, 0, 0, 0, 0,0
+			SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK,SEG_BLANK
 	};
 	segment_write(data);
 
@@ -26,9 +28,9 @@ void clock_thread(void *pvParameters) {
 
 	uint8_t bcd;
 	uint8_t old_sec = 15;
+	uint8_t button_press = 0;
 
 	while(1){
-
 		HAL_RTC_GetDate(&hrtc, &sTimeStampDate, RTC_FORMAT_BIN);
 		HAL_RTC_GetTime(&hrtc, &sTimeStamp, RTC_FORMAT_BIN);
 
@@ -48,7 +50,16 @@ void clock_thread(void *pvParameters) {
 			segment_write(data);
 			old_sec = data[5];
 		}
-		vTaskDelay(delay_100_ms);
+
+		xQueueReceive(button_queue, &button_press, ( TickType_t ) 10);
+		if(button_press){
+			HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+			vTaskDelay(delay_10_ms);
+			HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
+			button_press = 0;
+		}
+		vTaskDelay(delay_10_ms);
+
 	}
 }
 

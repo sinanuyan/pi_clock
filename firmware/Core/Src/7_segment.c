@@ -8,7 +8,7 @@
 #include "main.h"
 
 uint8_t segment_data[34][8] = {
-		//DP, G, F, E, D, C, B, A
+//DP, G, F, E, D, C, B, A
 		{ 1, 1, 0, 0, 0, 0, 0, 0 }, // 0
 		{ 1, 1, 1, 1, 1, 0, 0, 1 }, // 1
 		{ 1, 0, 1, 0, 0, 1, 0, 0 }, // 2
@@ -42,11 +42,10 @@ uint8_t segment_data[34][8] = {
 		{ 1, 1, 0, 0, 0, 0, 0, 1 }, // U (30)
 		{ 1, 0, 0, 1, 0, 0, 0, 1 }, // Y (31)
 		{ 1, 0, 1, 0, 0, 1, 0, 0 }, // Z (32)
-		{ 1, 1, 1, 1, 1, 1, 1, 1 }};// BLANK
+		{ 1, 1, 1, 1, 1, 1, 1, 1 } }; // BLANK
 
-void segment_write(uint8_t *data){
-	HAL_GPIO_WritePin(CLEAR_GPIO_Port, CLEAR_Pin, 0);
-	HAL_GPIO_WritePin(CLEAR_GPIO_Port, CLEAR_Pin, 1);
+void segment_write(uint8_t *data) {
+
 	for (uint8_t i = 0; i < 8; i++) {
 		HAL_GPIO_WritePin(A_HT_GPIO_Port, A_HT_Pin, segment_data[data[0]][i]);
 		HAL_GPIO_WritePin(A_HO_GPIO_Port, A_HO_Pin, segment_data[data[1]][i]);
