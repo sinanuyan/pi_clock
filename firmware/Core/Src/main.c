@@ -18,10 +18,12 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "7_segment.h"
+
+#include "clock_thread.h"
 
 /* USER CODE END Includes */
 
@@ -47,8 +49,9 @@ RTC_HandleTypeDef hrtc;
 
 TIM_HandleTypeDef htim2;
 
+osThreadId defaultTaskHandle;
 /* USER CODE BEGIN PV */
-
+xTaskHandle clock_thread_handle;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -57,6 +60,8 @@ static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_RTC_Init(void);
 static void MX_TIM2_Init(void);
+void StartDefaultTask(void const * argument);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -100,21 +105,45 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 
-	uint8_t data[6] = {
-			0, 0, 0, 0, 0,0
-	};
-	segment_write(data);
 
-	RTC_TimeTypeDef sTimeStamp;
-	RTC_DateTypeDef sTimeStampDate;
-
-	uint8_t bcd;
-	uint8_t old_sec = 15;
 
 	//HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
 
   /* USER CODE END 2 */
 
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  /* add queues, ... */
+  /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+  /* definition and creation of defaultTask */
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  xTaskCreate(clock_thread, "clock_thread", configMINIMAL_STACK_SIZE, NULL, 1, &clock_thread_handle);
+  //xTaskCreate(backlight_thread, "back_light", configMINIMAL_STACK_SIZE, NULL, 1, &backlight_thread_handle);
+
+  vTaskStartScheduler();
+  /* USER CODE END RTOS_THREADS */
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
@@ -122,25 +151,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-		HAL_RTC_GetDate(&hrtc, &sTimeStampDate, RTC_FORMAT_BIN);
-		HAL_RTC_GetTime(&hrtc, &sTimeStamp, RTC_FORMAT_BIN);
 
-		bcd = sTimeStamp.Seconds;
-		data[5] = bcd%10;
-		data[4] = bcd/10;
-
-		bcd = sTimeStamp.Minutes;
-		data[3] = bcd%10;
-		data[2] = bcd/10;
-
-		bcd = sTimeStamp.Hours;
-		data[1] = bcd%10;
-		data[0] = bcd/10;
-
-		if(old_sec != data[5]){
-			segment_write(data);
-			old_sec = data[5];
-		}
   }
   /* USER CODE END 3 */
 }
@@ -410,6 +421,24 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+/* USER CODE BEGIN Header_StartDefaultTask */
+/**
+  * @brief  Function implementing the defaultTask thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+/* USER CODE END Header_StartDefaultTask */
+void StartDefaultTask(void const * argument)
+{
+  /* USER CODE BEGIN 5 */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END 5 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
