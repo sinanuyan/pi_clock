@@ -34,7 +34,11 @@
 #define SEG_Y 31 //{ 1, 0, 0, 1, 0, 0, 0, 1 }, // Y (31)
 #define SEG_Z 32 //{ 1, 0, 1, 0, 0, 1, 0, 0 }};// Z (32)
 #define SEG_BLANK 33 //{ 1, 1, 1, 1, 1, 1, 1, 1 }};// BLANK (33)
+#define SEG_DEG 34	// { 1, 0, 0, 1, 1, 1, 0, 0 }};// DEG (34)
 
-void segment_write(uint8_t *data);
+
+#define MODE_TEMP 1
+
+void segment_write(uint8_t *data, uint8_t mode);
 
 #endif /* INC_7_SEGMENT_H_ */

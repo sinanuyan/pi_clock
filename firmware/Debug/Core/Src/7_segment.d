@@ -27,7 +27,9 @@ Core/Src/7_segment.o: ../Core/Src/7_segment.c ../Core/Inc/7_segment.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_rtc.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_rtc_ex.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim.h \
- ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h
+ ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h \
+ ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h \
+ ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h
 ../Core/Inc/7_segment.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h:
@@ -59,3 +61,5 @@ Core/Src/7_segment.o: ../Core/Src/7_segment.c ../Core/Inc/7_segment.h \
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_rtc_ex.h:
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim.h:
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h:
+../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h:
+../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h:

@@ -21,6 +21,7 @@ typedef enum{
 
 extern xTaskHandle button_thread_handle;
 extern QueueHandle_t button_queue;
+
 void button_thread(void *pvParameters);
 
 #endif /* SRC_BUTTON_THREAD_H_ */

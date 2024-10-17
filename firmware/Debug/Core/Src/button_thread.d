@@ -39,7 +39,9 @@ Core/Src/button_thread.o: ../Core/Src/button_thread.c \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_rtc.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_rtc_ex.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim.h \
- ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h
+ ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h \
+ ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h \
+ ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h
 ../Core/Src/button_thread.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
 ../Core/Inc/FreeRTOSConfig.h:
@@ -82,3 +84,5 @@ Core/Src/button_thread.o: ../Core/Src/button_thread.c \
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_rtc_ex.h:
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim.h:
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h:
+../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h:
+../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h:
