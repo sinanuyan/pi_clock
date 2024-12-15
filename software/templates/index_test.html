@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Button Example</title>
+    <script>
+        function handleClick() {
+            const data = {ht:0,ho:1,mt:3,mo:3,st:1,so:1};
+            fetch('/button-click', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('hour_ten_element').innerText = data;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Flask Button Example</h1>
+    <p id="hour_ten_element">0</p>
+    <button onclick="handleClick()">Click Me</button>
+    <p id="response"></p>
+</body>
+</html>

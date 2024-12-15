@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>pi Clock!</title>
+</head>
+<style>
+    table, th, td {
+      border:1px solid black;
+    }    
+</style>
+<script src="{{url_for('static', filename='pi_clock.js')}}"></script>
+
+<body>
+<h1>Display</h1>
+<table>
+    <tr>
+      <th>HOUR TEN</th>
+      <th>HOUR ONE</th>
+      <th>MINUTE TEN</th>
+      <th>MINUTE ONE</th>
+      <th>SECOND TEN</th>
+      <th>SECOND ONE</th>
+    </tr>
+    <tr>
+      <td id = "hour_ten_value">0</td>
+      <td id = "hour_one_value">0</td>
+      <td id = "minute_ten_value">0</td>
+      <td id = "minute_one_value">0</td>
+      <td id = "second_ten_value">0</td>
+      <td id = "second_one_value">0</td>
+    </tr>
+    <tr>
+      <td>
+        <button id = "hour_ten_inc" onclick="increase_value('hour_ten_element')">+</button>
+        <button id = "hour_ten_dec" onclick="decrease_value('hour_ten_element')">-</button>        
+      </td>
+      <td>
+        <button id = "hour_one_inc" onclick="increase_value('hour_one_element')">+</button>
+        <button id = "hour_one_dec" onclick="decrease_value('hour_one_element')">-</button>      
+      </td>
+      <td>
+        <button id = "minute_ten_inc" onclick="increase_value('minute_ten_element')">+</button>
+        <button id = "minute_ten_dec" onclick="decrease_value('minute_ten_element')">-</button>        
+      </td>
+      <td>
+        <button id = "minute_one_inc" onclick="increase_value('minute_one_element')">+</button>
+        <button id = "minute_one_dec" onclick="decrease_value('minute_one_element')">-</button>        
+      </td>
+      <td>
+        <button id = "second_ten_inc" onclick="increase_value('second_ten_element')">+</button>
+        <button id = "second_ten_dec" onclick="decrease_value('second_ten_element')">-</button>       
+      </td>
+      <td>
+        <button id = "second_one_inc" onclick="increase_value('second_one_element')">+</button>
+        <button id = "second_one_dec" onclick="decrease_value('second_one_element')">-</button>          
+      </td>
+    </tr>
+  </table>
+  <button onclick="set_values()">set</button>
+  <button onclick="set_auto_time()">set time automatically</button>
+  <button onclick="clear_values()">clear</button>
+</body>
+</html> 
