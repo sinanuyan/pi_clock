@@ -9,6 +9,7 @@
 #define INC_7_SEGMENT_H_
 
 #include <stdint.h>
+#include "clock_thread.h"
 
 #define SEG_A 10 //{ 1, 0, 0, 0, 1, 0, 0, 0 }, // A (10)
 #define SEG_b 11 //{ 1, 0, 0, 0, 0, 0, 1, 1 }, // b (11)
@@ -39,6 +40,6 @@
 
 #define MODE_TEMP 1
 
-void segment_write(uint8_t *data, uint8_t mode);
+void segment_write(seven_segment *seg);
 
 #endif /* INC_7_SEGMENT_H_ */

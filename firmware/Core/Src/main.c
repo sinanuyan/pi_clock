@@ -90,7 +90,8 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+
+	HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -111,7 +112,15 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
+	HAL_GPIO_WritePin(EN_HO_GPIO_Port, EN_HO_Pin, 0);
+	HAL_GPIO_WritePin(EN_HT_GPIO_Port, EN_HT_Pin, 0);
+	HAL_GPIO_WritePin(EN_MO_GPIO_Port, EN_MO_Pin, 0);
+	HAL_GPIO_WritePin(EN_MT_GPIO_Port, EN_MT_Pin, 0);
+	HAL_GPIO_WritePin(EN_SO_GPIO_Port, EN_SO_Pin, 0);
+	HAL_GPIO_WritePin(EN_ST_GPIO_Port, EN_ST_Pin, 0);
 
+	HAL_GPIO_WritePin(A_HT_GPIO_Port, A_HT_Pin, 1);
+	HAL_GPIO_WritePin(CLEAR_GPIO_Port, CLEAR_Pin, 1);
 
 
 	//HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
@@ -119,23 +128,24 @@ int main(void)
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
+	/* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
-  /* add semaphores, ... */
+	/* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
 
   /* USER CODE BEGIN RTOS_TIMERS */
-  /* start timers, add new ones, ... */
+	/* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
-  /* add queues, ... */
-  button_queue = xQueueCreate(16, sizeof(uint8_t));
-  if(button_queue == NULL){
-	  while(1);
-  }
+	/* add queues, ... */
+	button_queue = xQueueCreate(16, sizeof(uint8_t));
+	if (button_queue == NULL) {
+		while (1)
+			;
+	}
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
@@ -144,10 +154,12 @@ int main(void)
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
-  xTaskCreate(clock_thread, "clock_thread", configMINIMAL_STACK_SIZE, NULL, 2, &clock_thread_handle);
-  xTaskCreate(button_thread, "button_thread", configMINIMAL_STACK_SIZE, NULL, 1, &button_thread_handle);
+	xTaskCreate(clock_thread, "clock_thread", configMINIMAL_STACK_SIZE, NULL, 2,
+			&clock_thread_handle);
+	xTaskCreate(button_thread, "button_thread", configMINIMAL_STACK_SIZE, NULL,
+			1, &button_thread_handle);
 
-  vTaskStartScheduler();
+	vTaskStartScheduler();
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */
@@ -161,8 +173,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-
-  }
+	}
   /* USER CODE END 3 */
 }
 
@@ -420,33 +431,34 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, CLEAR_Pin|A_HT_Pin|B_HT_Pin|CLOCK_Pin
-                          |A_HO_Pin|B_HO_Pin|A_MT_Pin|B_MT_Pin
-                          |A_MO_Pin|B_MO_Pin|A_ST_Pin|B_ST_Pin
-                          |A_SO_Pin|B_SO_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, CLEAR_Pin|A_HT_Pin|CLK_A_HT_Pin|EN_HT_Pin
+                          |A_HO_Pin|CLK_A_HO_Pin|A_MT_Pin|CLK_A_MT_Pin
+                          |A_MO_Pin|CLK_A_MO_Pin|A_ST_Pin|CLK_A_ST_Pin
+                          |A_SO_Pin|CLK_A_SO_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_11, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_11|EN_MO_Pin|EN_ST_Pin|EN_SO_Pin
+                          |EN_HO_Pin|EN_MT_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : CLEAR_Pin A_HT_Pin B_HT_Pin A_HO_Pin
-                           B_HO_Pin A_MT_Pin B_MT_Pin A_MO_Pin
-                           B_MO_Pin A_ST_Pin B_ST_Pin A_SO_Pin
-                           B_SO_Pin */
-  GPIO_InitStruct.Pin = CLEAR_Pin|A_HT_Pin|B_HT_Pin|A_HO_Pin
-                          |B_HO_Pin|A_MT_Pin|B_MT_Pin|A_MO_Pin
-                          |B_MO_Pin|A_ST_Pin|B_ST_Pin|A_SO_Pin
-                          |B_SO_Pin;
+  /*Configure GPIO pins : CLEAR_Pin A_HT_Pin CLK_A_HT_Pin A_HO_Pin
+                           CLK_A_HO_Pin A_MT_Pin CLK_A_MT_Pin A_MO_Pin
+                           CLK_A_MO_Pin A_ST_Pin CLK_A_ST_Pin A_SO_Pin
+                           CLK_A_SO_Pin */
+  GPIO_InitStruct.Pin = CLEAR_Pin|A_HT_Pin|CLK_A_HT_Pin|A_HO_Pin
+                          |CLK_A_HO_Pin|A_MT_Pin|CLK_A_MT_Pin|A_MO_Pin
+                          |CLK_A_MO_Pin|A_ST_Pin|CLK_A_ST_Pin|A_SO_Pin
+                          |CLK_A_SO_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : CLOCK_Pin */
-  GPIO_InitStruct.Pin = CLOCK_Pin;
+  /*Configure GPIO pin : EN_HT_Pin */
+  GPIO_InitStruct.Pin = EN_HT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  HAL_GPIO_Init(CLOCK_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(EN_HT_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : BTN_UP_Pin BTN_DOWN_Pin BTN_LEFT_Pin BTN_RIGHT_Pin */
   GPIO_InitStruct.Pin = BTN_UP_Pin|BTN_DOWN_Pin|BTN_LEFT_Pin|BTN_RIGHT_Pin;
@@ -461,6 +473,15 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : EN_MO_Pin EN_ST_Pin EN_SO_Pin EN_HO_Pin
+                           EN_MT_Pin */
+  GPIO_InitStruct.Pin = EN_MO_Pin|EN_ST_Pin|EN_SO_Pin|EN_HO_Pin
+                          |EN_MT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
 }
@@ -471,19 +492,18 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN Header_StartDefaultTask */
 /**
-  * @brief  Function implementing the defaultTask thread.
-  * @param  argument: Not used
-  * @retval None
-  */
+ * @brief  Function implementing the defaultTask thread.
+ * @param  argument: Not used
+ * @retval None
+ */
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
+	/* Infinite loop */
+	for (;;) {
+		osDelay(1);
+	}
   /* USER CODE END 5 */
 }
 

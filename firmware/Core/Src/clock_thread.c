@@ -11,19 +11,20 @@
 extern RTC_HandleTypeDef hrtc;
 extern TIM_HandleTypeDef htim2;
 extern I2C_HandleTypeDef hi2c1;
-extern uint8_t segment_data[34][8];
+extern UART_HandleTypeDef huart2;
 
 void clock_thread(void *pvParameters) {
 	/* Just to remove compiler warning. */
 	(void) pvParameters;
 
 	const TickType_t delay_1000_ms = pdMS_TO_TICKS(1000UL);
+	const TickType_t delay_200_ms = pdMS_TO_TICKS(200UL);
 	const TickType_t delay_100_ms = pdMS_TO_TICKS(100UL);
+	const TickType_t delay_10_ms = pdMS_TO_TICKS(10UL);
 
 	uint8_t data[6] = {
-			SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK,SEG_BLANK
-	};
-	segment_write(data, 0);
+	SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK };
+	//segment_write(data, 0);
 
 	RTC_TimeTypeDef sTimeStamp;
 	RTC_DateTypeDef sTimeStampDate;
@@ -33,7 +34,7 @@ void clock_thread(void *pvParameters) {
 
 	uint8_t sht_addr = 0x88;
 
-	uint8_t sht_tx[2] = {0x20, 0x32};
+	uint8_t sht_tx[2] = { 0x20, 0x32 };
 	uint8_t sht_rx[6];
 	HAL_StatusTypeDef result;
 
@@ -41,38 +42,92 @@ void clock_thread(void *pvParameters) {
 	vTaskDelay(delay_100_ms);
 	result = HAL_I2C_Master_Receive(&hi2c1, sht_addr, sht_rx, 3, 10);
 
+	uint8_t tx_data[100];
+
 	uint16_t st = 0;
 	uint32_t temp_seg = 0;
 	st = sht_rx[0] << 8;
 	st = st | sht_rx[1];
 
-	float temperature = -45+175*((float)st/65535);
+	float temperature = -45 + 175 * ((float) st / 65535);
+	uint8_t hour_ten_value = 0;
+	uint8_t hour_one_value = 0;
+	uint8_t minute_ten_value = 0;
+	uint8_t minute_one_value = 0;
+	uint8_t second_ten_value = 0;
+	uint8_t second_one_value = 0;
 
-	while(1){
-		HAL_RTC_GetDate(&hrtc, &sTimeStampDate, RTC_FORMAT_BIN);
-		HAL_RTC_GetTime(&hrtc, &sTimeStamp, RTC_FORMAT_BIN);
+	data[0] = SEG_A;
+	data[1] = SEG_A;
+	data[2] = SEG_A;
+	data[3] = SEG_A;
+	data[4] = SEG_A;
+	data[5] = SEG_A;
 
-		result = HAL_I2C_Master_Receive(&hi2c1, sht_addr, sht_rx, 3, 10);
-		st = sht_rx[0] << 8;
-		st = st | sht_rx[1];
+	seven_segment hour_ten;
+	seven_segment hour_one;
+	seven_segment minute_ten;
+	seven_segment minute_one;
+	seven_segment second_ten;
+	seven_segment second_one;
 
-		temperature = -45+175*((float)st/65535);
-		temp_seg = temperature*100;
+	hour_ten.a_port = A_HT_GPIO_Port;
+	hour_ten.a_pin = A_HT_Pin;
+	hour_ten.clock_port = CLK_A_HT_GPIO_Port;
+	hour_ten.clock_pin = CLK_A_HT_Pin;
+	hour_ten.enable_port = EN_HT_GPIO_Port;
+	hour_ten.enable_pin = EN_HT_Pin;
 
-		data[5] = SEG_C;
-		data[4] = SEG_DEG;
-		data[3] = temp_seg%10;
-		temp_seg /= 10;
-		data[2] = temp_seg%10;
-		temp_seg /= 10;
-		data[1] = temp_seg%10;
-		temp_seg /= 10;
-		data[0] = temp_seg%10;
+	hour_one.a_port = A_HO_GPIO_Port;
+	hour_one.a_pin = A_HO_Pin;
+	hour_one.clock_port = CLK_A_HO_GPIO_Port;
+	hour_one.clock_pin = CLK_A_HO_Pin;
+	hour_one.enable_port = EN_HO_GPIO_Port;
+	hour_one.enable_pin = EN_HO_Pin;
 
-		if(old_sec != data[3]){
-			segment_write(data, MODE_TEMP);
-			old_sec = data[3];
-		}
+	minute_ten.a_port = A_MT_GPIO_Port;
+	minute_ten.a_pin = A_MT_Pin;
+	minute_ten.clock_port = CLK_A_MT_GPIO_Port;
+	minute_ten.clock_pin = CLK_A_MT_Pin;
+	minute_ten.enable_port = EN_MT_GPIO_Port;
+	minute_ten.enable_pin = EN_MT_Pin;
+
+	minute_one.a_port = A_MO_GPIO_Port;
+	minute_one.a_pin = A_MO_Pin;
+	minute_one.clock_port = CLK_A_MO_GPIO_Port;
+	minute_one.clock_pin = CLK_A_MO_Pin;
+	minute_one.enable_port = EN_MO_GPIO_Port;
+	minute_one.enable_pin = EN_MO_Pin;
+
+	second_ten.a_port = A_ST_GPIO_Port;
+	second_ten.a_pin = A_ST_Pin;
+	second_ten.clock_port = CLK_A_ST_GPIO_Port;
+	second_ten.clock_pin = CLK_A_ST_Pin;
+	second_ten.enable_port = EN_ST_GPIO_Port;
+	second_ten.enable_pin = EN_ST_Pin;
+
+	second_one.a_port = A_SO_GPIO_Port;
+	second_one.a_pin = A_SO_Pin;
+	second_one.clock_port = CLK_A_SO_GPIO_Port;
+	second_one.clock_pin = CLK_A_SO_Pin;
+	second_one.enable_port = EN_SO_GPIO_Port;
+	second_one.enable_pin = EN_SO_Pin;
+
+	hour_ten.data = 0;
+	hour_one.data = 0;
+	minute_ten.data = 0;
+	minute_one.data = 0;
+	second_ten.data = 0;
+	second_one.data = 0;
+
+	segment_write(&hour_ten);
+	segment_write(&hour_one);
+	segment_write(&minute_ten);
+	segment_write(&minute_one);
+	segment_write(&second_ten);
+	segment_write(&second_one);
+
+	while (1) {
 
 		vTaskDelay(delay_1000_ms);
 	}

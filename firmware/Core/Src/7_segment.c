@@ -6,6 +6,7 @@
  */
 #include "7_segment.h"
 #include "main.h"
+#include "clock_thread.h"
 
 uint8_t segment_data[35][8] = {
 //DP, G, F, E, D, C, B, A
@@ -45,24 +46,14 @@ uint8_t segment_data[35][8] = {
 		{ 1, 1, 1, 1, 1, 1, 1, 1 }, // BLANK (33)
 		{ 1, 0, 0, 1, 1, 1, 0, 0 }}; // DEG (34)
 
-void segment_write(uint8_t *data, uint8_t mode) {
+void segment_write(seven_segment *seg){
+
+	HAL_GPIO_WritePin(seg->enable_port, seg->enable_pin, 0);
 
 	for (uint8_t i = 0; i < 8; i++) {
-		HAL_GPIO_WritePin(A_HT_GPIO_Port, A_HT_Pin, segment_data[data[0]][i]);
-		if((mode == 1) && (i== 0)){
-			HAL_GPIO_WritePin(A_HO_GPIO_Port, A_HO_Pin, 0);
-		}else{
-			HAL_GPIO_WritePin(A_HO_GPIO_Port, A_HO_Pin, segment_data[data[1]][i]);
-		}
-
-
-		HAL_GPIO_WritePin(A_MT_GPIO_Port, A_MT_Pin, segment_data[data[2]][i]);
-		HAL_GPIO_WritePin(A_MO_GPIO_Port, A_MO_Pin, segment_data[data[3]][i]);
-
-		HAL_GPIO_WritePin(A_ST_GPIO_Port, A_ST_Pin, segment_data[data[4]][i]);
-		HAL_GPIO_WritePin(A_SO_GPIO_Port, A_SO_Pin, segment_data[data[5]][i]);
-
-		HAL_GPIO_WritePin(CLOCK_GPIO_Port, CLOCK_Pin, 0);
-		HAL_GPIO_WritePin(CLOCK_GPIO_Port, CLOCK_Pin, 1);
+		HAL_GPIO_WritePin(seg->a_port, seg->a_pin, segment_data[seg->data][i]);
+		HAL_GPIO_WritePin(seg->clock_port, seg->clock_pin, 0);
+		HAL_GPIO_WritePin(seg->clock_port, seg->clock_pin, 1);
 	}
+	HAL_GPIO_WritePin(seg->enable_port, seg->enable_pin, 1);
 }

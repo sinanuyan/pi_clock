@@ -7,7 +7,7 @@
 #include "button_thread.h"
 #include "main.h"
 
-extern UART_HandleTypeDef huart2;
+
 
 void button_thread(void *pvParameters) {
 	/* Just to remove compiler warning. */
