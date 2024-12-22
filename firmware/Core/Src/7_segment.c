@@ -47,14 +47,14 @@ uint8_t segment_data[35][8] = {
 		{ 1, 0, 0, 1, 1, 1, 0, 0 } }; // DEG (34)
 
 void segment_write(seven_segment *seg) {
-	//HAL_GPIO_WritePin(seg->enable_port, seg->enable_pin, 0);
+	HAL_GPIO_WritePin(seg->enable_port, seg->enable_pin, seg->enable_segment);
 
 	for (uint8_t i = 0; i < 8; i++) {
 		HAL_GPIO_WritePin(seg->a_port, seg->a_pin, segment_data[seg->data][i]);
 		HAL_GPIO_WritePin(seg->clock_port, seg->clock_pin, 0);
 		HAL_GPIO_WritePin(seg->clock_port, seg->clock_pin, 1);
 	}
-	//HAL_GPIO_WritePin(seg->enable_port, seg->enable_pin, 1);
+	HAL_GPIO_WritePin(seg->enable_port, seg->enable_pin, seg->enable_segment);
 }
 
 void display_write(display *disp) {

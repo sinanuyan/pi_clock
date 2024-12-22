@@ -79,6 +79,7 @@ void clock_thread(void *pvParameters) {
 	hour_ten.clock_pin = CLK_A_HT_Pin;
 	hour_ten.enable_port = EN_HT_GPIO_Port;
 	hour_ten.enable_pin = EN_HT_Pin;
+	hour_ten.enable_segment = 1;
 
 	hour_one.a_port = A_HO_GPIO_Port;
 	hour_one.a_pin = A_HO_Pin;
@@ -86,6 +87,7 @@ void clock_thread(void *pvParameters) {
 	hour_one.clock_pin = CLK_A_HO_Pin;
 	hour_one.enable_port = EN_HO_GPIO_Port;
 	hour_one.enable_pin = EN_HO_Pin;
+	hour_one.enable_segment = 1;
 
 	minute_ten.a_port = A_MT_GPIO_Port;
 	minute_ten.a_pin = A_MT_Pin;
@@ -93,6 +95,7 @@ void clock_thread(void *pvParameters) {
 	minute_ten.clock_pin = CLK_A_MT_Pin;
 	minute_ten.enable_port = EN_MT_GPIO_Port;
 	minute_ten.enable_pin = EN_MT_Pin;
+	minute_ten.enable_segment = 1;
 
 	minute_one.a_port = A_MO_GPIO_Port;
 	minute_one.a_pin = A_MO_Pin;
@@ -100,6 +103,7 @@ void clock_thread(void *pvParameters) {
 	minute_one.clock_pin = CLK_A_MO_Pin;
 	minute_one.enable_port = EN_MO_GPIO_Port;
 	minute_one.enable_pin = EN_MO_Pin;
+	minute_one.enable_segment = 1;
 
 	second_ten.a_port = A_ST_GPIO_Port;
 	second_ten.a_pin = A_ST_Pin;
@@ -107,6 +111,7 @@ void clock_thread(void *pvParameters) {
 	second_ten.clock_pin = CLK_A_ST_Pin;
 	second_ten.enable_port = EN_ST_GPIO_Port;
 	second_ten.enable_pin = EN_ST_Pin;
+	second_ten.enable_segment = 1;
 
 	second_one.a_port = A_SO_GPIO_Port;
 	second_one.a_pin = A_SO_Pin;
@@ -114,6 +119,7 @@ void clock_thread(void *pvParameters) {
 	second_one.clock_pin = CLK_A_SO_Pin;
 	second_one.enable_port = EN_SO_GPIO_Port;
 	second_one.enable_pin = EN_SO_Pin;
+	second_one.enable_segment = 1;
 
 	hour_ten.data = 0;
 	hour_one.data = 0;
@@ -132,26 +138,7 @@ void clock_thread(void *pvParameters) {
 	disp.data = 990000;
 	display_write(&disp);
 
-	uint8_t blink_count = 0;
-	uint8_t on_off = 1;
-
 	while (1) {
-		if (blink_count < 50) {
-			blink_count++;
-		} else {
-			blink_count = 0;
-			if (on_off) {
-				on_off = 0;
-			} else {
-				on_off = 1;
-			}
-			segment_on_off(&hour_ten, on_off);
-			segment_on_off(&hour_one, on_off);
-			segment_on_off(&minute_ten, on_off);
-			segment_on_off(&minute_one, on_off);
-			segment_on_off(&second_ten, on_off);
-			segment_on_off(&second_one, on_off);
-		}
 		disp.data++;
 		display_write(&disp);
 		vTaskDelay(delay_10_ms);
