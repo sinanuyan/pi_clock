@@ -71,6 +71,8 @@ void clock_thread(void *pvParameters) {
 	seven_segment second_ten;
 	seven_segment second_one;
 
+	display disp;
+
 	hour_ten.a_port = A_HT_GPIO_Port;
 	hour_ten.a_pin = A_HT_Pin;
 	hour_ten.clock_port = CLK_A_HT_GPIO_Port;
@@ -120,15 +122,38 @@ void clock_thread(void *pvParameters) {
 	second_ten.data = 0;
 	second_one.data = 0;
 
-	segment_write(&hour_ten);
-	segment_write(&hour_one);
-	segment_write(&minute_ten);
-	segment_write(&minute_one);
-	segment_write(&second_ten);
-	segment_write(&second_one);
+	disp.hour_ten = &hour_ten;
+	disp.hour_one = &hour_one;
+	disp.minute_ten = &minute_ten;
+	disp.minute_one = &minute_one;
+	disp.second_ten = &second_ten;
+	disp.second_one = &second_one;
+
+	disp.data = 990000;
+	display_write(&disp);
+
+	uint8_t blink_count = 0;
+	uint8_t on_off = 1;
 
 	while (1) {
-
-		vTaskDelay(delay_1000_ms);
+		if (blink_count < 50) {
+			blink_count++;
+		} else {
+			blink_count = 0;
+			if (on_off) {
+				on_off = 0;
+			} else {
+				on_off = 1;
+			}
+			segment_on_off(&hour_ten, on_off);
+			segment_on_off(&hour_one, on_off);
+			segment_on_off(&minute_ten, on_off);
+			segment_on_off(&minute_one, on_off);
+			segment_on_off(&second_ten, on_off);
+			segment_on_off(&second_one, on_off);
+		}
+		disp.data++;
+		display_write(&disp);
+		vTaskDelay(delay_10_ms);
 	}
 }

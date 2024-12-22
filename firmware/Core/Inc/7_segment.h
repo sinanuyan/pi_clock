@@ -41,5 +41,7 @@
 #define MODE_TEMP 1
 
 void segment_write(seven_segment *seg);
+void segment_on_off(seven_segment *seg, uint8_t on_off);
+void display_write(display *disp);
 
 #endif /* INC_7_SEGMENT_H_ */

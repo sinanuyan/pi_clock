@@ -44,16 +44,42 @@ uint8_t segment_data[35][8] = {
 		{ 1, 0, 0, 1, 0, 0, 0, 1 }, // Y (31)
 		{ 1, 0, 1, 0, 0, 1, 0, 0 }, // Z (32)
 		{ 1, 1, 1, 1, 1, 1, 1, 1 }, // BLANK (33)
-		{ 1, 0, 0, 1, 1, 1, 0, 0 }}; // DEG (34)
+		{ 1, 0, 0, 1, 1, 1, 0, 0 } }; // DEG (34)
 
-void segment_write(seven_segment *seg){
-
-	HAL_GPIO_WritePin(seg->enable_port, seg->enable_pin, 0);
+void segment_write(seven_segment *seg) {
+	//HAL_GPIO_WritePin(seg->enable_port, seg->enable_pin, 0);
 
 	for (uint8_t i = 0; i < 8; i++) {
 		HAL_GPIO_WritePin(seg->a_port, seg->a_pin, segment_data[seg->data][i]);
 		HAL_GPIO_WritePin(seg->clock_port, seg->clock_pin, 0);
 		HAL_GPIO_WritePin(seg->clock_port, seg->clock_pin, 1);
 	}
-	HAL_GPIO_WritePin(seg->enable_port, seg->enable_pin, 1);
+	//HAL_GPIO_WritePin(seg->enable_port, seg->enable_pin, 1);
+}
+
+void display_write(display *disp) {
+	uint32_t data = disp->data;
+	disp->second_one->data = data % 10;
+	data /= 10;
+	disp->second_ten->data = data % 10;
+	data /= 10;
+	disp->minute_one->data = data % 10;
+	data /= 10;
+	disp->minute_ten->data = data % 10;
+	data /= 10;
+	disp->hour_one->data = data % 10;
+	data /= 10;
+	disp->hour_ten->data = data % 10;
+
+	segment_write(disp->hour_ten);
+	segment_write(disp->hour_one);
+	segment_write(disp->minute_ten);
+	segment_write(disp->minute_one);
+	segment_write(disp->second_ten);
+	segment_write(disp->second_one);
+}
+
+void segment_on_off(seven_segment *seg, uint8_t on_off){
+	HAL_GPIO_WritePin(seg->enable_port, seg->enable_pin, on_off);
+	seg->enable_segment = on_off;
 }
