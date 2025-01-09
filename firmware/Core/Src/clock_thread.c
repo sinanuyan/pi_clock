@@ -17,11 +17,6 @@ void clock_thread(void *pvParameters) {
 	/* Just to remove compiler warning. */
 	(void) pvParameters;
 
-	const TickType_t delay_1000_ms = pdMS_TO_TICKS(1000UL);
-	const TickType_t delay_200_ms = pdMS_TO_TICKS(200UL);
-	const TickType_t delay_100_ms = pdMS_TO_TICKS(100UL);
-	const TickType_t delay_10_ms = pdMS_TO_TICKS(10UL);
-
 	uint8_t data[6] = {
 	SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK };
 	//segment_write(data, 0);
@@ -39,7 +34,7 @@ void clock_thread(void *pvParameters) {
 	HAL_StatusTypeDef result;
 
 	result = HAL_I2C_Master_Transmit(&hi2c1, sht_addr, sht_tx, 2, 10);
-	vTaskDelay(delay_100_ms);
+
 	result = HAL_I2C_Master_Receive(&hi2c1, sht_addr, sht_rx, 3, 10);
 
 	uint8_t tx_data[100];
@@ -141,6 +136,5 @@ void clock_thread(void *pvParameters) {
 	while (1) {
 		disp.data++;
 		display_write(&disp);
-		vTaskDelay(delay_10_ms);
 	}
 }

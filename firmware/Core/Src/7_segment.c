@@ -71,12 +71,36 @@ void display_write(display *disp) {
 	data /= 10;
 	disp->hour_ten->data = data % 10;
 
-	segment_write(disp->hour_ten);
-	segment_write(disp->hour_one);
-	segment_write(disp->minute_ten);
-	segment_write(disp->minute_one);
-	segment_write(disp->second_ten);
-	segment_write(disp->second_one);
+	if(disp->hour_ten->data != disp->hour_ten->data_old){
+		segment_write(disp->hour_ten);
+		disp->hour_ten->data_old = disp->hour_ten->data;
+	}
+
+	if(disp->hour_one->data != disp->hour_one->data_old){
+		segment_write(disp->hour_one);
+		disp->hour_one->data_old = disp->hour_one->data;
+	}
+
+	if(disp->minute_ten->data != disp->minute_ten->data_old){
+		segment_write(disp->minute_ten);
+		disp->minute_ten->data_old = disp->minute_ten->data;
+	}
+
+	if(disp->minute_one->data != disp->minute_one->data_old){
+		segment_write(disp->minute_one);
+		disp->minute_one->data_old = disp->minute_one->data;
+	}
+
+	if(disp->second_ten->data != disp->second_ten->data_old){
+		segment_write(disp->second_ten);
+		disp->second_ten->data_old = disp->second_ten->data;
+	}
+
+	if(disp->second_one->data != disp->second_one->data_old){
+		segment_write(disp->second_one);
+		disp->second_one->data_old = disp->second_one->data;
+	}
+
 }
 
 void segment_on_off(seven_segment *seg, uint8_t on_off){

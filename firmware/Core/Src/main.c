@@ -18,13 +18,13 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
 #include "clock_thread.h"
 #include "button_thread.h"
+#include "7_segment.h"
 
 /* USER CODE END Includes */
 
@@ -52,11 +52,8 @@ TIM_HandleTypeDef htim2;
 
 UART_HandleTypeDef huart2;
 
-osThreadId defaultTaskHandle;
 /* USER CODE BEGIN PV */
-xTaskHandle clock_thread_handle;
-xTaskHandle button_thread_handle;
-QueueHandle_t button_queue;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -66,8 +63,6 @@ static void MX_I2C1_Init(void);
 static void MX_RTC_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_USART2_UART_Init(void);
-void StartDefaultTask(void const * argument);
-
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -90,8 +85,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-
-	HAL_Init();
+  HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -122,56 +116,142 @@ int main(void)
 	HAL_GPIO_WritePin(A_HT_GPIO_Port, A_HT_Pin, 1);
 	HAL_GPIO_WritePin(CLEAR_GPIO_Port, CLEAR_Pin, 1);
 
+	uint8_t data[6] = {
+	SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK };
+	//segment_write(data, 0);
+
+	RTC_TimeTypeDef sTimeStamp;
+	RTC_DateTypeDef sTimeStampDate;
+
+	uint8_t bcd;
+	uint8_t old_sec = 15;
+
+	uint8_t sht_addr = 0x88;
+
+	uint8_t sht_tx[2] = { 0x20, 0x32 };
+	uint8_t sht_rx[6];
+	HAL_StatusTypeDef result;
+
+	result = HAL_I2C_Master_Transmit(&hi2c1, sht_addr, sht_tx, 2, 10);
+
+	result = HAL_I2C_Master_Receive(&hi2c1, sht_addr, sht_rx, 3, 10);
+
+	uint8_t tx_data[100];
+
+	uint16_t st = 0;
+	uint32_t temp_seg = 0;
+	st = sht_rx[0] << 8;
+	st = st | sht_rx[1];
+
+	float temperature = -45 + 175 * ((float) st / 65535);
+	uint8_t hour_ten_value = 0;
+	uint8_t hour_one_value = 0;
+	uint8_t minute_ten_value = 0;
+	uint8_t minute_one_value = 0;
+	uint8_t second_ten_value = 0;
+	uint8_t second_one_value = 0;
+
+	data[0] = SEG_A;
+	data[1] = SEG_A;
+	data[2] = SEG_A;
+	data[3] = SEG_A;
+	data[4] = SEG_A;
+	data[5] = SEG_A;
+
+	seven_segment hour_ten;
+	seven_segment hour_one;
+	seven_segment minute_ten;
+	seven_segment minute_one;
+	seven_segment second_ten;
+	seven_segment second_one;
+
+	display disp;
+
+	hour_ten.a_port = A_HT_GPIO_Port;
+	hour_ten.a_pin = A_HT_Pin;
+	hour_ten.clock_port = CLK_A_HT_GPIO_Port;
+	hour_ten.clock_pin = CLK_A_HT_Pin;
+	hour_ten.enable_port = EN_HT_GPIO_Port;
+	hour_ten.enable_pin = EN_HT_Pin;
+	hour_ten.enable_segment = 1;
+
+	hour_one.a_port = A_HO_GPIO_Port;
+	hour_one.a_pin = A_HO_Pin;
+	hour_one.clock_port = CLK_A_HO_GPIO_Port;
+	hour_one.clock_pin = CLK_A_HO_Pin;
+	hour_one.enable_port = EN_HO_GPIO_Port;
+	hour_one.enable_pin = EN_HO_Pin;
+	hour_one.enable_segment = 1;
+
+	minute_ten.a_port = A_MT_GPIO_Port;
+	minute_ten.a_pin = A_MT_Pin;
+	minute_ten.clock_port = CLK_A_MT_GPIO_Port;
+	minute_ten.clock_pin = CLK_A_MT_Pin;
+	minute_ten.enable_port = EN_MT_GPIO_Port;
+	minute_ten.enable_pin = EN_MT_Pin;
+	minute_ten.enable_segment = 1;
+
+	minute_one.a_port = A_MO_GPIO_Port;
+	minute_one.a_pin = A_MO_Pin;
+	minute_one.clock_port = CLK_A_MO_GPIO_Port;
+	minute_one.clock_pin = CLK_A_MO_Pin;
+	minute_one.enable_port = EN_MO_GPIO_Port;
+	minute_one.enable_pin = EN_MO_Pin;
+	minute_one.enable_segment = 1;
+
+	second_ten.a_port = A_ST_GPIO_Port;
+	second_ten.a_pin = A_ST_Pin;
+	second_ten.clock_port = CLK_A_ST_GPIO_Port;
+	second_ten.clock_pin = CLK_A_ST_Pin;
+	second_ten.enable_port = EN_ST_GPIO_Port;
+	second_ten.enable_pin = EN_ST_Pin;
+	second_ten.enable_segment = 1;
+
+	second_one.a_port = A_SO_GPIO_Port;
+	second_one.a_pin = A_SO_Pin;
+	second_one.clock_port = CLK_A_SO_GPIO_Port;
+	second_one.clock_pin = CLK_A_SO_Pin;
+	second_one.enable_port = EN_SO_GPIO_Port;
+	second_one.enable_pin = EN_SO_Pin;
+	second_one.enable_segment = 1;
+
+	hour_ten.data = 0;
+	hour_ten.data_old = 255;
+	hour_one.data = 0;
+	hour_one.data_old = 255;
+	minute_ten.data = 0;
+	minute_ten.data_old = 255;
+	minute_one.data = 0;
+	minute_one.data_old = 255;
+	second_ten.data = 0;
+	second_ten.data_old = 255;
+	second_one.data = 0;
+	second_one.data_old = 255;
+
+	disp.hour_ten = &hour_ten;
+	disp.hour_one = &hour_one;
+	disp.minute_ten = &minute_ten;
+	disp.minute_one = &minute_one;
+	disp.second_ten = &second_ten;
+	disp.second_one = &second_one;
+
+	disp.data = 0;
+	display_write(&disp);
+
 
 	//HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
 
   /* USER CODE END 2 */
 
-  /* USER CODE BEGIN RTOS_MUTEX */
-	/* add mutexes, ... */
-  /* USER CODE END RTOS_MUTEX */
-
-  /* USER CODE BEGIN RTOS_SEMAPHORES */
-	/* add semaphores, ... */
-  /* USER CODE END RTOS_SEMAPHORES */
-
-  /* USER CODE BEGIN RTOS_TIMERS */
-	/* start timers, add new ones, ... */
-  /* USER CODE END RTOS_TIMERS */
-
-  /* USER CODE BEGIN RTOS_QUEUES */
-	/* add queues, ... */
-	button_queue = xQueueCreate(16, sizeof(uint8_t));
-	if (button_queue == NULL) {
-		while (1)
-			;
-	}
-  /* USER CODE END RTOS_QUEUES */
-
-  /* Create the thread(s) */
-  /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
-  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
-
-  /* USER CODE BEGIN RTOS_THREADS */
-	xTaskCreate(clock_thread, "clock_thread", configMINIMAL_STACK_SIZE, NULL, 2,
-			&clock_thread_handle);
-	xTaskCreate(button_thread, "button_thread", configMINIMAL_STACK_SIZE, NULL,
-			1, &button_thread_handle);
-
-	vTaskStartScheduler();
-  /* USER CODE END RTOS_THREADS */
-
-  /* Start scheduler */
-  osKernelStart();
-
-  /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+		disp.data++;
+		display_write(&disp);
+		HAL_Delay(1);
 
 	}
   /* USER CODE END 3 */
@@ -489,23 +569,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
-/* USER CODE BEGIN Header_StartDefaultTask */
-/**
- * @brief  Function implementing the defaultTask thread.
- * @param  argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const * argument)
-{
-  /* USER CODE BEGIN 5 */
-	/* Infinite loop */
-	for (;;) {
-		osDelay(1);
-	}
-  /* USER CODE END 5 */
-}
 
 /**
   * @brief  This function is executed in case of error occurrence.
