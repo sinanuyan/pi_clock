@@ -204,31 +204,59 @@ int main(void)
 
 	disp_hour.ten = &hour_ten;
 	disp_hour.one = &hour_one;
+	disp_hour.data = 00;
+	disp_hour.data_old = 255;
 
 	disp_minute.ten = &minute_ten;
 	disp_minute.one = &minute_one;
+	disp_minute.data = 00;
+	disp_minute.data_old = 255;
 
 	disp_second.ten = &second_ten;
 	disp_second.one = &second_one;
-
-	disp_hour.data = 00;
-	disp_hour.data_old = 255;
-	disp_minute.data = 00;
-	disp_minute.data_old = 255;
 	disp_second.data = 00;
 	disp_second.data_old = 255;
 
-	display_write_segment(&disp_hour);
-	display_write_segment(&disp_minute);
-	display_write_segment(&disp_second);
+	Button button_up = {
+			BUTTON_IDLE,
+			BUTTON_LONG_PRESS,
+			0,
+			0,
+			0,
+			BTN_UP_GPIO_Port,
+			BTN_UP_Pin
+	};
 
-	Button button_up = { BUTTON_IDLE, BUTTON_LONG_PRESS,0, 0, 0, BTN_UP_GPIO_Port, BTN_UP_Pin };
-	Button button_down = { BUTTON_IDLE,BUTTON_LONG_PRESS, 0, 0, 0, BTN_DOWN_GPIO_Port, BTN_DOWN_Pin };
-	Button button_left = { BUTTON_IDLE,BUTTON_LONG_PRESS, 0, 0, 0, BTN_LEFT_GPIO_Port, BTN_LEFT_Pin };
-	Button button_right = { BUTTON_IDLE,BUTTON_LONG_PRESS, 0, 0, 0, BTN_RIGHT_GPIO_Port,BTN_RIGHT_Pin };
+	Button button_down = {
+			BUTTON_IDLE,
+			BUTTON_LONG_PRESS,
+			0,
+			0,
+			0,
+			BTN_DOWN_GPIO_Port,
+			BTN_DOWN_Pin
+	};
+	Button button_left = {
+			BUTTON_IDLE,
+			BUTTON_LONG_PRESS,
+			0,
+			0,
+			0,
+			BTN_LEFT_GPIO_Port,
+			BTN_LEFT_Pin
+	};
+	Button button_right = {
+			BUTTON_IDLE,
+			BUTTON_LONG_PRESS,
+			0,
+			0,
+			0,
+			BTN_RIGHT_GPIO_Port,
+			BTN_RIGHT_Pin
+	};
 
 	button_up.state_old = 0;
-	uint8_t mode = 0;
+	uint8_t display_mode = 0;
 
   /* USER CODE END 2 */
 
@@ -246,10 +274,10 @@ int main(void)
 		if(button_up.state == BUTTON_PRESSED){
 			if(button_up.state_old == 0){
 				button_up.state_old = 1;
-				if(mode == 0){
-					mode = 1;
+				if(display_mode){
+					display_mode = 0;
 				}else{
-					mode = 0;
+					display_mode = 1;
 				}
 			}
 		}else if(button_up.state == BUTTON_RELEASED){
@@ -257,17 +285,15 @@ int main(void)
 		}
 
 		if (button_down.state == BUTTON_LONG_PRESS) {
-			disp_minute.data++;
 		}
 
 		if (button_left.state == BUTTON_LONG_PRESS) {
-			disp_second.data++;
 		}
 
 		result = HAL_RTC_GetDate(&hrtc, &sTimeStampDate, RTC_FORMAT_BIN);
 		result = HAL_RTC_GetTime(&hrtc, &sTimeStamp, RTC_FORMAT_BIN);
 
-		if(mode){
+		if(display_mode){
 			disp_hour.data = sTimeStamp.Hours;
 			disp_minute.data = sTimeStamp.Minutes;
 			disp_second.data = sTimeStamp.Seconds;
