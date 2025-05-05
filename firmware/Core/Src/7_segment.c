@@ -56,50 +56,50 @@ void segment_write(seven_segment *seg) {
 	HAL_GPIO_WritePin(seg->enable_port, seg->enable_pin, seg->enable_segment);
 }
 
-void display_write_number(display *disp) {
-	uint32_t data = disp->data;
-	disp->second_one->data = data % 10;
-	data /= 10;
-	disp->second_ten->data = data % 10;
-	data /= 10;
-	disp->minute_one->data = data % 10;
-	data /= 10;
-	disp->minute_ten->data = data % 10;
-	data /= 10;
-	disp->hour_one->data = data % 10;
-	data /= 10;
-	disp->hour_ten->data = data % 10;
-
-	if (disp->hour_ten->data != disp->hour_ten->data_old) {
-		segment_write(disp->hour_ten);
-		disp->hour_ten->data_old = disp->hour_ten->data;
-	}
-
-	if (disp->hour_one->data != disp->hour_one->data_old) {
-		segment_write(disp->hour_one);
-		disp->hour_one->data_old = disp->hour_one->data;
-	}
-
-	if (disp->minute_ten->data != disp->minute_ten->data_old) {
-		segment_write(disp->minute_ten);
-		disp->minute_ten->data_old = disp->minute_ten->data;
-	}
-
-	if (disp->minute_one->data != disp->minute_one->data_old) {
-		segment_write(disp->minute_one);
-		disp->minute_one->data_old = disp->minute_one->data;
-	}
-
-	if (disp->second_ten->data != disp->second_ten->data_old) {
-		segment_write(disp->second_ten);
-		disp->second_ten->data_old = disp->second_ten->data;
-	}
-
-	if (disp->second_one->data != disp->second_one->data_old) {
-		segment_write(disp->second_one);
-		disp->second_one->data_old = disp->second_one->data;
-	}
-}
+//void display_write_number(display *disp) {
+//	uint32_t data = disp->data;
+//	disp->second_one->data = data % 10;
+//	data /= 10;
+//	disp->second_ten->data = data % 10;
+//	data /= 10;
+//	disp->minute_one->data = data % 10;
+//	data /= 10;
+//	disp->minute_ten->data = data % 10;
+//	data /= 10;
+//	disp->hour_one->data = data % 10;
+//	data /= 10;
+//	disp->hour_ten->data = data % 10;
+//
+//	if (disp->hour_ten->data != disp->hour_ten->data_old) {
+//		segment_write(disp->hour_ten);
+//		disp->hour_ten->data_old = disp->hour_ten->data;
+//	}
+//
+//	if (disp->hour_one->data != disp->hour_one->data_old) {
+//		segment_write(disp->hour_one);
+//		disp->hour_one->data_old = disp->hour_one->data;
+//	}
+//
+//	if (disp->minute_ten->data != disp->minute_ten->data_old) {
+//		segment_write(disp->minute_ten);
+//		disp->minute_ten->data_old = disp->minute_ten->data;
+//	}
+//
+//	if (disp->minute_one->data != disp->minute_one->data_old) {
+//		segment_write(disp->minute_one);
+//		disp->minute_one->data_old = disp->minute_one->data;
+//	}
+//
+//	if (disp->second_ten->data != disp->second_ten->data_old) {
+//		segment_write(disp->second_ten);
+//		disp->second_ten->data_old = disp->second_ten->data;
+//	}
+//
+//	if (disp->second_one->data != disp->second_one->data_old) {
+//		segment_write(disp->second_one);
+//		disp->second_one->data_old = disp->second_one->data;
+//	}
+//}
 
 void display_write_segment(display_segment *disp_segment) {
 	uint8_t data = disp_segment->data;

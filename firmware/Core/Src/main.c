@@ -143,25 +143,6 @@ int main(void)
 		while(1);
 	}
 
-	uint8_t sht_addr = 0x88;
-
-	uint8_t sht_tx[2] = { 0x20, 0x2F };
-	uint8_t sht_rx[6];
-
-
-	result = HAL_I2C_Master_Transmit(&hi2c1, sht_addr, sht_tx, 2, 10);
-	HAL_Delay(200);
-	result = HAL_I2C_Master_Receive(&hi2c1, sht_addr, sht_rx, 6, 10);
-
-	uint8_t tx_data[100];
-
-	uint16_t st = 0;
-	uint32_t temp_seg = 0;
-	st = sht_rx[0] << 8;
-	st = st | sht_rx[1];
-
-	float temperature = -45 + 175 * ((float) st / 65535);
-
 	seven_segment hour_ten;
 	seven_segment hour_one;
 	seven_segment minute_ten;
@@ -169,7 +150,6 @@ int main(void)
 	seven_segment second_ten;
 	seven_segment second_one;
 
-	display disp;
 	display_segment disp_hour;
 	display_segment disp_minute;
 	display_segment disp_second;
@@ -222,26 +202,6 @@ int main(void)
 	second_one.enable_pin = EN_SO_Pin;
 	second_one.enable_segment = 1;
 
-	hour_ten.data = 0;
-	hour_ten.data_old = 255;
-	hour_one.data = 0;
-	hour_one.data_old = 255;
-	minute_ten.data = 0;
-	minute_ten.data_old = 255;
-	minute_one.data = 0;
-	minute_one.data_old = 255;
-	second_ten.data = 0;
-	second_ten.data_old = 255;
-	second_one.data = 0;
-	second_one.data_old = 255;
-
-	disp.hour_ten = &hour_ten;
-	disp.hour_one = &hour_one;
-	disp.minute_ten = &minute_ten;
-	disp.minute_one = &minute_one;
-	disp.second_ten = &second_ten;
-	disp.second_one = &second_one;
-
 	disp_hour.ten = &hour_ten;
 	disp_hour.one = &hour_one;
 
@@ -250,25 +210,6 @@ int main(void)
 
 	disp_second.ten = &second_ten;
 	disp_second.one = &second_one;
-
-	disp.data = 0;
-	disp.data_old = 255;
-	display_write_number(&disp);
-
-	//HAL_TIM_Base_Start_IT(&htim21);
-
-	//HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
-
-	result = HAL_I2C_Master_Receive(&hi2c1, sht_addr, sht_rx, 3, 10);
-	if (result == HAL_OK) {
-		st = sht_rx[0] << 8;
-		st = st | sht_rx[1];
-		temperature = -45 + 175 * ((float) st / 65535);
-		disp.data = temperature * 10000;
-		display_write_number(&disp);
-	}
-	HAL_Delay(500);
-
 
 	disp_hour.data = 00;
 	disp_hour.data_old = 255;
