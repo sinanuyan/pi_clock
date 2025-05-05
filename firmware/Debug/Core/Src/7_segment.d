@@ -1,6 +1,5 @@
 Core/Src/7_segment.o: ../Core/Src/7_segment.c ../Core/Inc/7_segment.h \
- ../Core/Src/clock_thread.h ../Core/Inc/main.h \
- ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h \
+ ../Core/Inc/main.h ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h \
  ../Core/Inc/stm32l0xx_hal_conf.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_rcc.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_def.h \
@@ -31,9 +30,8 @@ Core/Src/7_segment.o: ../Core/Src/7_segment.c ../Core/Inc/7_segment.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h \
  ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h \
- ../Core/Src/clock_thread.h
+ ../Core/Inc/main.h
 ../Core/Inc/7_segment.h:
-../Core/Src/clock_thread.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal.h:
 ../Core/Inc/stm32l0xx_hal_conf.h:
@@ -66,4 +64,4 @@ Core/Src/7_segment.o: ../Core/Src/7_segment.c ../Core/Inc/7_segment.h \
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_tim_ex.h:
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart.h:
 ../Drivers/STM32L0xx_HAL_Driver/Inc/stm32l0xx_hal_uart_ex.h:
-../Core/Src/clock_thread.h:
+../Core/Inc/main.h:

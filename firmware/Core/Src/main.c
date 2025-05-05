@@ -22,9 +22,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include "clock_thread.h"
-#include "button_thread.h"
 #include "7_segment.h"
+#include "critical_section.h"
+#include "button.h"
 
 /* USER CODE END Includes */
 
@@ -49,6 +49,7 @@ I2C_HandleTypeDef hi2c1;
 RTC_HandleTypeDef hrtc;
 
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim21;
 
 UART_HandleTypeDef huart2;
 
@@ -63,12 +64,18 @@ static void MX_I2C1_Init(void);
 static void MX_RTC_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_TIM21_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+uint8_t ext_btn_up_value;
+uint8_t ext_btn_down_value;
+uint8_t ext_btn_left_value;
+uint8_t ext_btn_right_value;
+uint32_t clock_value;
 
 /* USER CODE END 0 */
 
@@ -79,6 +86,7 @@ static void MX_USART2_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+	clock_value = 0;
 
   /* USER CODE END 1 */
 
@@ -104,6 +112,7 @@ int main(void)
   MX_RTC_Init();
   MX_TIM2_Init();
   MX_USART2_UART_Init();
+  MX_TIM21_Init();
   /* USER CODE BEGIN 2 */
 
 	HAL_GPIO_WritePin(EN_HO_GPIO_Port, EN_HO_Pin, 0);
@@ -116,25 +125,33 @@ int main(void)
 	HAL_GPIO_WritePin(A_HT_GPIO_Port, A_HT_Pin, 1);
 	HAL_GPIO_WritePin(CLEAR_GPIO_Port, CLEAR_Pin, 1);
 
-	uint8_t data[6] = {
-	SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK, SEG_BLANK };
-	//segment_write(data, 0);
-
 	RTC_TimeTypeDef sTimeStamp;
 	RTC_DateTypeDef sTimeStampDate;
 
-	uint8_t bcd;
-	uint8_t old_sec = 15;
+	sTimeStamp.Hours = 23;
+	sTimeStamp.Minutes = 59;
+	sTimeStamp.Seconds = 58;
+
+	sTimeStamp.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+	sTimeStamp.StoreOperation = RTC_STOREOPERATION_SET;
+
+	sTimeStamp.StoreOperation = RTC_STOREOPERATION_SET;
+	HAL_StatusTypeDef result;
+
+	result = HAL_RTC_SetTime(&hrtc, &sTimeStamp, RTC_FORMAT_BIN);
+	if(result != HAL_OK){
+		while(1);
+	}
 
 	uint8_t sht_addr = 0x88;
 
-	uint8_t sht_tx[2] = { 0x20, 0x32 };
+	uint8_t sht_tx[2] = { 0x20, 0x2F };
 	uint8_t sht_rx[6];
-	HAL_StatusTypeDef result;
+
 
 	result = HAL_I2C_Master_Transmit(&hi2c1, sht_addr, sht_tx, 2, 10);
-
-	result = HAL_I2C_Master_Receive(&hi2c1, sht_addr, sht_rx, 3, 10);
+	HAL_Delay(200);
+	result = HAL_I2C_Master_Receive(&hi2c1, sht_addr, sht_rx, 6, 10);
 
 	uint8_t tx_data[100];
 
@@ -144,19 +161,6 @@ int main(void)
 	st = st | sht_rx[1];
 
 	float temperature = -45 + 175 * ((float) st / 65535);
-	uint8_t hour_ten_value = 0;
-	uint8_t hour_one_value = 0;
-	uint8_t minute_ten_value = 0;
-	uint8_t minute_one_value = 0;
-	uint8_t second_ten_value = 0;
-	uint8_t second_one_value = 0;
-
-	data[0] = SEG_A;
-	data[1] = SEG_A;
-	data[2] = SEG_A;
-	data[3] = SEG_A;
-	data[4] = SEG_A;
-	data[5] = SEG_A;
 
 	seven_segment hour_ten;
 	seven_segment hour_one;
@@ -166,6 +170,9 @@ int main(void)
 	seven_segment second_one;
 
 	display disp;
+	display_segment disp_hour;
+	display_segment disp_minute;
+	display_segment disp_second;
 
 	hour_ten.a_port = A_HT_GPIO_Port;
 	hour_ten.a_pin = A_HT_Pin;
@@ -235,11 +242,52 @@ int main(void)
 	disp.second_ten = &second_ten;
 	disp.second_one = &second_one;
 
-	disp.data = 0;
-	display_write(&disp);
+	disp_hour.ten = &hour_ten;
+	disp_hour.one = &hour_one;
 
+	disp_minute.ten = &minute_ten;
+	disp_minute.one = &minute_one;
+
+	disp_second.ten = &second_ten;
+	disp_second.one = &second_one;
+
+	disp.data = 0;
+	disp.data_old = 255;
+	display_write_number(&disp);
+
+	//HAL_TIM_Base_Start_IT(&htim21);
 
 	//HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+
+	result = HAL_I2C_Master_Receive(&hi2c1, sht_addr, sht_rx, 3, 10);
+	if (result == HAL_OK) {
+		st = sht_rx[0] << 8;
+		st = st | sht_rx[1];
+		temperature = -45 + 175 * ((float) st / 65535);
+		disp.data = temperature * 10000;
+		display_write_number(&disp);
+	}
+	HAL_Delay(500);
+
+
+	disp_hour.data = 00;
+	disp_hour.data_old = 255;
+	disp_minute.data = 00;
+	disp_minute.data_old = 255;
+	disp_second.data = 00;
+	disp_second.data_old = 255;
+
+	display_write_segment(&disp_hour);
+	display_write_segment(&disp_minute);
+	display_write_segment(&disp_second);
+
+	Button button_up = { BUTTON_IDLE, BUTTON_LONG_PRESS,0, 0, 0, BTN_UP_GPIO_Port, BTN_UP_Pin };
+	Button button_down = { BUTTON_IDLE,BUTTON_LONG_PRESS, 0, 0, 0, BTN_DOWN_GPIO_Port, BTN_DOWN_Pin };
+	Button button_left = { BUTTON_IDLE,BUTTON_LONG_PRESS, 0, 0, 0, BTN_LEFT_GPIO_Port, BTN_LEFT_Pin };
+	Button button_right = { BUTTON_IDLE,BUTTON_LONG_PRESS, 0, 0, 0, BTN_RIGHT_GPIO_Port,BTN_RIGHT_Pin };
+
+	button_up.state_old = 0;
+	uint8_t mode = 0;
 
   /* USER CODE END 2 */
 
@@ -249,10 +297,50 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		disp.data++;
-		display_write(&disp);
-		HAL_Delay(1);
+		process_button(&button_up);
+		process_button(&button_down);
+		process_button(&button_left);
+		process_button(&button_right);
 
+		if(button_up.state == BUTTON_PRESSED){
+			if(button_up.state_old == 0){
+				button_up.state_old = 1;
+				if(mode == 0){
+					mode = 1;
+				}else{
+					mode = 0;
+				}
+			}
+		}else if(button_up.state == BUTTON_RELEASED){
+			button_up.state_old = 0;
+		}
+
+		if (button_down.state == BUTTON_LONG_PRESS) {
+			disp_minute.data++;
+		}
+
+		if (button_left.state == BUTTON_LONG_PRESS) {
+			disp_second.data++;
+		}
+
+		result = HAL_RTC_GetDate(&hrtc, &sTimeStampDate, RTC_FORMAT_BIN);
+		result = HAL_RTC_GetTime(&hrtc, &sTimeStamp, RTC_FORMAT_BIN);
+
+		if(mode){
+			disp_hour.data = sTimeStamp.Hours;
+			disp_minute.data = sTimeStamp.Minutes;
+			disp_second.data = sTimeStamp.Seconds;
+		}else{
+			disp_hour.data = sTimeStampDate.Date;
+			disp_minute.data = sTimeStampDate.Month;
+			disp_second.data = sTimeStampDate.Year;
+		}
+
+		display_write_segment(&disp_hour);
+		display_write_segment(&disp_minute);
+		display_write_segment(&disp_second);
+
+		HAL_Delay(10);
 	}
   /* USER CODE END 3 */
 }
@@ -376,6 +464,9 @@ static void MX_RTC_Init(void)
 
   /* USER CODE END RTC_Init 0 */
 
+  RTC_TimeTypeDef sTime = {0};
+  RTC_DateTypeDef sDate = {0};
+
   /* USER CODE BEGIN RTC_Init 1 */
 
   /* USER CODE END RTC_Init 1 */
@@ -391,6 +482,31 @@ static void MX_RTC_Init(void)
   hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
   hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
   if (HAL_RTC_Init(&hrtc) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /* USER CODE BEGIN Check_RTC_BKUP */
+
+  /* USER CODE END Check_RTC_BKUP */
+
+  /** Initialize RTC and set the Time and Date
+  */
+  sTime.Hours = 0x0;
+  sTime.Minutes = 0x0;
+  sTime.Seconds = 0x0;
+  sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+  sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sDate.WeekDay = RTC_WEEKDAY_MONDAY;
+  sDate.Month = RTC_MONTH_JANUARY;
+  sDate.Date = 0x1;
+  sDate.Year = 0x25;
+
+  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
   {
     Error_Handler();
   }
@@ -456,6 +572,64 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 2 */
   HAL_TIM_MspPostInit(&htim2);
+
+}
+
+/**
+  * @brief TIM21 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM21_Init(void)
+{
+
+  /* USER CODE BEGIN TIM21_Init 0 */
+
+  /* USER CODE END TIM21_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+
+  /* USER CODE BEGIN TIM21_Init 1 */
+
+  /* USER CODE END TIM21_Init 1 */
+  htim21.Instance = TIM21;
+  htim21.Init.Prescaler = 31;
+  htim21.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim21.Init.Period = 1000;
+  htim21.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim21.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim21) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim21, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_OC_Init(&htim21) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim21, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_TIMING;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_OC_ConfigChannel(&htim21, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM21_Init 2 */
+
+  /* USER CODE END TIM21_Init 2 */
 
 }
 
@@ -542,7 +716,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : BTN_UP_Pin BTN_DOWN_Pin BTN_LEFT_Pin BTN_RIGHT_Pin */
   GPIO_InitStruct.Pin = BTN_UP_Pin|BTN_DOWN_Pin|BTN_LEFT_Pin|BTN_RIGHT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
@@ -561,6 +735,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI0_1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI2_3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI2_3_IRQn);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */

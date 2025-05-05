@@ -77,10 +77,13 @@ void Error_Handler(void);
 #define CLK_A_MT_GPIO_Port GPIOA
 #define BTN_UP_Pin GPIO_PIN_0
 #define BTN_UP_GPIO_Port GPIOB
+#define BTN_UP_EXTI_IRQn EXTI0_1_IRQn
 #define BTN_DOWN_Pin GPIO_PIN_1
 #define BTN_DOWN_GPIO_Port GPIOB
+#define BTN_DOWN_EXTI_IRQn EXTI0_1_IRQn
 #define BTN_LEFT_Pin GPIO_PIN_2
 #define BTN_LEFT_GPIO_Port GPIOB
+#define BTN_LEFT_EXTI_IRQn EXTI2_3_IRQn
 #define EN_MO_Pin GPIO_PIN_12
 #define EN_MO_GPIO_Port GPIOB
 #define EN_ST_Pin GPIO_PIN_13
@@ -101,6 +104,7 @@ void Error_Handler(void);
 #define CLK_A_SO_GPIO_Port GPIOA
 #define BTN_RIGHT_Pin GPIO_PIN_3
 #define BTN_RIGHT_GPIO_Port GPIOB
+#define BTN_RIGHT_EXTI_IRQn EXTI2_3_IRQn
 #define EN_HO_Pin GPIO_PIN_4
 #define EN_HO_GPIO_Port GPIOB
 #define EN_MT_Pin GPIO_PIN_5
@@ -121,6 +125,7 @@ typedef struct{
 
 typedef struct{
 	uint32_t data;
+	uint32_t data_old;
 	seven_segment *hour_ten;
 	seven_segment *hour_one;
 	seven_segment *minute_ten;
@@ -128,6 +133,13 @@ typedef struct{
 	seven_segment *second_ten;
 	seven_segment *second_one;
 }display;
+
+typedef struct{
+	uint8_t data;
+	uint8_t data_old;
+	seven_segment *ten;
+	seven_segment *one;
+}display_segment;
 
 /* USER CODE END Private defines */
 

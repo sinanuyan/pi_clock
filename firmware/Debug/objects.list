@@ -1,6 +1,5 @@
 "./Core/Src/7_segment.o"
-"./Core/Src/button_thread.o"
-"./Core/Src/clock_thread.o"
+"./Core/Src/button.o"
 "./Core/Src/main.o"
 "./Core/Src/stm32l0xx_hal_msp.o"
 "./Core/Src/stm32l0xx_it.o"

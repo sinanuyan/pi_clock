@@ -9,7 +9,7 @@
 #define INC_7_SEGMENT_H_
 
 #include <stdint.h>
-#include "clock_thread.h"
+#include "main.h"
 
 #define SEG_A 10 //{ 1, 0, 0, 0, 1, 0, 0, 0 }, // A (10)
 #define SEG_b 11 //{ 1, 0, 0, 0, 0, 0, 1, 1 }, // b (11)
@@ -39,10 +39,14 @@
 
 
 #define MODE_TEMP 1
+#define SEGMENT_SECOND 	0
+#define SEGMENT_MINUTE	1
+#define SEGMENT_HOUR	2
 
 void segment_write(seven_segment *seg);
 void segment_on_off(seven_segment *seg, uint8_t on_off);
-void display_write(display *disp);
+void display_write_number(display *disp);
+void display_write_segment(display_segment *disp_segment);
 
 
 #endif /* INC_7_SEGMENT_H_ */
