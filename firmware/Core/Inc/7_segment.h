@@ -37,9 +37,9 @@
 #define SEG_BLANK 33 //{ 1, 1, 1, 1, 1, 1, 1, 1 }};// BLANK (33)
 #define SEG_DEG 34	// { 1, 0, 0, 1, 1, 1, 0, 0 }};// DEG (34)
 
-void segment_write(seven_segment *seg);
+void segment_write(seven_segment *seg, uint8_t dot);
 void segment_on_off(seven_segment *seg, uint8_t on_off);
-void display_write_segment(display_segment *disp_segment);
+void display_write_segment(display_segment *disp_segment, uint8_t dot);
 
 
 #endif /* INC_7_SEGMENT_H_ */

@@ -25,6 +25,7 @@
 #include "7_segment.h"
 #include "critical_section.h"
 #include "button.h"
+#include "pi_serial.h"
 
 /* USER CODE END Includes */
 
@@ -114,6 +115,11 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM21_Init();
   /* USER CODE BEGIN 2 */
+
+  	  char rx_buffer[64];
+  	  char tx_buffer[16];
+  	  char time_buffer[32];
+  	  char date_buffer[32];
 
 	HAL_GPIO_WritePin(EN_HO_GPIO_Port, EN_HO_Pin, 0);
 	HAL_GPIO_WritePin(EN_HT_GPIO_Port, EN_HT_Pin, 0);
@@ -256,7 +262,12 @@ int main(void)
 	};
 
 	button_up.state_old = 0;
-	uint8_t display_mode = 0;
+	button_down.state_old = 0;
+	button_left.state_old = 0;
+
+	DisplayState display_state = DISPLAY_INIT;
+	PiTime pi_times;
+	uint8_t dot = 0;
 
   /* USER CODE END 2 */
 
@@ -274,10 +285,10 @@ int main(void)
 		if(button_up.state == BUTTON_PRESSED){
 			if(button_up.state_old == 0){
 				button_up.state_old = 1;
-				if(display_mode){
-					display_mode = 0;
+				if(display_state == DISPLAY_TIME){
+					display_state = DISPLAY_DATE;
 				}else{
-					display_mode = 1;
+					display_state = DISPLAY_TIME;
 				}
 			}
 		}else if(button_up.state == BUTTON_RELEASED){
@@ -285,27 +296,81 @@ int main(void)
 		}
 
 		if (button_down.state == BUTTON_LONG_PRESS) {
+			if(button_down.state_old == 0){
+				button_down.state_old = 1;
+				send_uart_command("time");
+				receive_uart_response(time_buffer, sizeof(time_buffer));
+				parse_time_string(time_buffer, &pi_times);
+
+				sTimeStamp.Hours = (uint8_t) pi_times.hours;
+				sTimeStamp.Minutes = (uint8_t) pi_times.minutes;
+				sTimeStamp.Seconds = (uint8_t) pi_times.seconds;
+
+				sTimeStamp.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+				sTimeStamp.StoreOperation = RTC_STOREOPERATION_SET;
+
+				sTimeStamp.StoreOperation = RTC_STOREOPERATION_SET;
+				HAL_StatusTypeDef result;
+
+				result = HAL_RTC_SetTime(&hrtc, &sTimeStamp, RTC_FORMAT_BIN);
+				if(result != HAL_OK){
+					while(1);
+				}
+			}
+		}else if(button_down.state == BUTTON_RELEASED){
+			button_down.state_old = 0;
 		}
 
 		if (button_left.state == BUTTON_LONG_PRESS) {
+			if(button_left.state_old == 0){
+				button_left.state_old = 1;
+				send_uart_command("date");
+				receive_uart_response(date_buffer, sizeof(date_buffer));
+				parse_date_string(date_buffer, &pi_times);
+
+				sTimeStampDate.Year = (uint8_t) (pi_times.years % 100);
+				sTimeStampDate.Month = (uint8_t) pi_times.months;
+				sTimeStampDate.Date = (uint8_t) pi_times.seconds;
+
+				result = HAL_RTC_SetTime(&hrtc, &sTimeStamp, RTC_FORMAT_BIN);
+				result = HAL_RTC_SetDate(&hrtc, &sTimeStampDate, RTC_FORMAT_BIN);
+				if(result != HAL_OK){
+					while(1);
+				}
+			}
+		}else if(button_left.state == BUTTON_RELEASED){
+			button_left.state_old = 0;
 		}
 
 		result = HAL_RTC_GetDate(&hrtc, &sTimeStampDate, RTC_FORMAT_BIN);
 		result = HAL_RTC_GetTime(&hrtc, &sTimeStamp, RTC_FORMAT_BIN);
 
-		if(display_mode){
+
+		switch(display_state){
+		case DISPLAY_INIT:
+			display_state = DISPLAY_TIME;
+			break;
+		case DISPLAY_TIME:
 			disp_hour.data = sTimeStamp.Hours;
 			disp_minute.data = sTimeStamp.Minutes;
 			disp_second.data = sTimeStamp.Seconds;
-		}else{
+			dot = 0;
+			break;
+		case DISPLAY_DATE:
 			disp_hour.data = sTimeStampDate.Date;
 			disp_minute.data = sTimeStampDate.Month;
 			disp_second.data = sTimeStampDate.Year;
+			dot = 1;
+			break;
+		case DISPLAY_TEMPERATURE:
+			break;
+		default:
+			break;
 		}
 
-		display_write_segment(&disp_hour);
-		display_write_segment(&disp_minute);
-		display_write_segment(&disp_second);
+		display_write_segment(&disp_hour, dot);
+		display_write_segment(&disp_minute, dot);
+		display_write_segment(&disp_second, dot);
 
 		HAL_Delay(10);
 	}

@@ -1,6 +1,7 @@
 "./Core/Src/7_segment.o"
 "./Core/Src/button.o"
 "./Core/Src/main.o"
+"./Core/Src/pi_serial.o"
 "./Core/Src/stm32l0xx_hal_msp.o"
 "./Core/Src/stm32l0xx_it.o"
 "./Core/Src/syscalls.o"

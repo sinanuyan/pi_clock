@@ -141,6 +141,14 @@ typedef struct{
 	seven_segment *one;
 }display_segment;
 
+typedef enum {
+    DISPLAY_INIT,
+    DISPLAY_TIME,
+    DISPLAY_DATE,
+    DISPLAY_TEMPERATURE,
+    DISPLAY_NOF
+} DisplayState;
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
